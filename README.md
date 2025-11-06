@@ -83,7 +83,7 @@ function saveToFile(text) {
 
 | Cloud Mode (Artifact) | File Mode (Standalone) |
 |----------------------|------------------------|
-| ![Cloud Mode](cloud-mode.png) | ![File Mode](file-mode.png) |
+| ![Cloud Mode](cloud-mode.png?v=2) | ![File Mode](file-mode.png) |
 | Auto-saves to Anthropic cloud storage | Downloads/uploads JSON files |
 
 
