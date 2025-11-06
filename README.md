@@ -4,14 +4,14 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Claude](https://img.shields.io/badge/Claude-191919?style=for-the-badge&logo=anthropic&logoColor=white)](https://claude.ai)
 
-A demonstration of building web applications that automatically adapt their persistence strategy based on the runtime environment - seamlessly using Claude's cloud storage when running as a published artifact, or falling back to traditional file-based persistence when running standalone.
+A demonstration of building web applications that automatically adapt their persistence strategy based on the runtime environment - seamlessly using cloud storage when published as a Claude.ai artifact, or falling back to traditional file-based persistence when running as a standalone HTML file.
 
 ## What This Demonstrates
 
-This simple notes application showcases a powerful pattern for building portable web apps that work both as Claude artifacts with cloud persistence and as standalone HTML files:
+This simple notes application showcases a powerful pattern for building portable web apps that work both as published Claude.ai artifacts with cloud persistence and as standalone HTML files:
 
-- **Environment Detection**: Automatically detects whether running as a Claude artifact or standalone
-- **Adaptive Persistence**: Seamlessly switches between cloud storage and file downloads
+- **Environment Detection**: Automatically detects whether running as a published artifact on Claude.ai or as a standalone HTML file
+- **Adaptive Persistence**: Seamlessly switches between cloud storage (artifacts) and file downloads (standalone)
 - **Single Codebase**: One set of code that works in both environments
 - **Zero Configuration**: No user configuration needed - it just works
 
@@ -19,10 +19,10 @@ This simple notes application showcases a powerful pattern for building portable
 
 When building web applications, you often face a choice:
 
-1. **Cloud-based apps**: Great UX with automatic persistence, but tied to a specific platform
+1. **Platform-specific apps**: Great UX with automatic persistence, but tied to a specific platform
 2. **Standalone apps**: Portable and self-contained, but require manual save/load workflows
 
-This demo shows you can have **both** - a single application that adapts to its environment.
+This demo shows you can have **both** - a single HTML file that adapts to its environment. When published as an artifact on Claude.ai, it gains access to cloud storage. When downloaded and opened locally, it gracefully falls back to file-based storage.
 
 ## How It Works
 
