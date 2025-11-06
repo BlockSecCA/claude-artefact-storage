@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive Notes</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .mode {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .cloud-mode {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #28a745;
+        }
+        
+        .file-mode {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+        
+        .save-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .load-btn {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            transition: opacity 0.3s;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Notes</h1>
+        <div id="mode" class="mode"></div>
+        <textarea id="notes" placeholder="Start typing your notes here..."></textarea>
+        <div class="buttons">
+            <button class="save-btn" onclick="save()">Save</button>
+            <button class="load-btn" onclick="load()">Load</button>
+        </div>
+        <div id="status"></div>
+        <input type="file" id="fileInput" accept=".json" onchange="loadFile(event)">
+    </div>
+
+    <script>
+        const hasCloud = typeof window.storage !== 'undefined';
+        const KEY = 'notes:data';
+
+        function init() {
+            const modeEl = document.getElementById('mode');
+            if (hasCloud) {
+                modeEl.className = 'mode cloud-mode';
+                modeEl.textContent = '☁️ Cloud Mode - Auto-saving enabled';
+                loadFromCloud();
+            } else {
+                modeEl.className = 'mode file-mode';
+                modeEl.textContent = '💾 File Mode - Download to save';
+            }
+        }
+
+        async function save() {
+            const text = document.getElementById('notes').value;
+            if (!text.trim()) {
+                showStatus('Nothing to save', 'error');
+                return;
+            }
+
+            if (hasCloud) {
+                await saveToCloud(text);
+            } else {
+                saveToFile(text);
+            }
+        }
+
+        async function load() {
+            if (hasCloud) {
+                await loadFromCloud();
+            } else {
+                document.getElementById('fileInput').click();
+            }
+        }
+
+        async function saveToCloud(text) {
+            try {
+                const data = { content: text, saved: new Date().toISOString() };
+                await window.storage.set(KEY, JSON.stringify(data), false);
+                showStatus('✅ Saved to cloud', 'success');
+            } catch (e) {
+                showStatus('❌ Save failed: ' + e.message, 'error');
+            }
+        }
+
+        async function loadFromCloud() {
+            try {
+                const result = await window.storage.get(KEY, false);
+                if (result && result.value) {
+                    const data = JSON.parse(result.value);
+                    document.getElementById('notes').value = data.content;
+                    showStatus('✅ Loaded from cloud', 'success');
+                }
+            } catch (e) {
+                // Silently fail on initial load if no saved notes exist
+                console.log('No saved notes found');
+            }
+        }
+
+        function saveToFile(text) {
+            const data = { content: text, saved: new Date().toISOString() };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'notes-' + Date.now() + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus('✅ Downloaded', 'success');
+        }
+
+        function loadFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    document.getElementById('notes').value = data.content;
+                    showStatus('✅ Loaded from file', 'success');
+                } catch (e) {
+                    showStatus('❌ Invalid file', 'error');
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('status');
+            el.className = 'status ' + type;
+            el.textContent = msg;
+            setTimeout(() => el.textContent = '', 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
