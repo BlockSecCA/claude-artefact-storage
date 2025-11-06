@@ -45,6 +45,24 @@
             color: #856404;
             border: 1px solid #ffc107;
         }
+
+        .privacy-info {
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #2196f3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .privacy-info::before {
+            content: "🔒";
+            font-size: 14px;
+        }
         
         textarea {
             width: 100%;
@@ -126,6 +144,7 @@
     <div class="container">
         <h1>📝 Notes</h1>
         <div id="mode" class="mode"></div>
+        <div id="privacyInfo" class="privacy-info" style="display: none;"></div>
         <textarea id="notes" placeholder="Start typing your notes here..."></textarea>
         <div class="buttons">
             <button class="save-btn" onclick="save()">Save</button>
@@ -138,12 +157,22 @@
     <script>
         const hasCloud = typeof window.storage !== 'undefined';
         const KEY = 'notes:data';
+        const IS_SHARED = false; // false = private/personal, true = shared/public
 
         function init() {
             const modeEl = document.getElementById('mode');
+            const privacyEl = document.getElementById('privacyInfo');
+            
             if (hasCloud) {
                 modeEl.className = 'mode cloud-mode';
                 modeEl.textContent = '☁️ Cloud Mode - Auto-saving enabled';
+                
+                // Show privacy information
+                privacyEl.style.display = 'flex';
+                privacyEl.textContent = IS_SHARED 
+                    ? 'Shared Storage: Notes are visible to all users of this artifact'
+                    : 'Private Storage: Only you can see your notes';
+                
                 loadFromCloud();
             } else {
                 modeEl.className = 'mode file-mode';
@@ -176,8 +205,8 @@
         async function saveToCloud(text) {
             try {
                 const data = { content: text, saved: new Date().toISOString() };
-                await window.storage.set(KEY, JSON.stringify(data), false);
-                showStatus('✅ Saved to cloud', 'success');
+                await window.storage.set(KEY, JSON.stringify(data), IS_SHARED);
+                showStatus('✅ Saved to ' + (IS_SHARED ? 'shared' : 'private') + ' cloud storage', 'success');
             } catch (e) {
                 showStatus('❌ Save failed: ' + e.message, 'error');
             }
@@ -185,7 +214,7 @@
 
         async function loadFromCloud() {
             try {
-                const result = await window.storage.get(KEY, false);
+                const result = await window.storage.get(KEY, IS_SHARED);
                 if (result && result.value) {
                     const data = JSON.parse(result.value);
                     document.getElementById('notes').value = data.content;
