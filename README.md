@@ -284,10 +284,10 @@ graph TD
     F --> H[Anthropic Cloud Storage]
     
     style A fill:#667eea,stroke:#333,stroke-width:2px,color:#fff
-    style B fill:#ffc107,stroke:#333,stroke-width:2px
+    style B fill:#c107,stroke:#333,stroke-width:2px
     style C fill:#ff9800,stroke:#333,stroke-width:2px,color:#fff
     style D fill:#4caf50,stroke:#333,stroke-width:2px,color:#fff
-    style G fill:#f5f5f5,stroke:#333,stroke-width:2px
+    style G fill:#2196f3,stroke:#333,stroke-width:2px
     style H fill:#2196f3,stroke:#333,stroke-width:2px,color:#fff
 ```
 
