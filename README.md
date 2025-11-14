@@ -408,6 +408,10 @@ This adaptive storage pattern is ideal for:
 - Team voting tools
 - Game scoreboards
 
+## Author
+
+Carlos - BlockSecCA
+
 ## License
 
 This is a demonstration project. Feel free to use, modify, and distribute as needed.
